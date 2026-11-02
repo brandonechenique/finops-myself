@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gastos Hormiga</title>
+<meta name="theme-color" content="#0f766e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#1b1f1d;--mute:#6b736f;--line:#e2e6e3;--acc:#0f766e;--acc-ink:#fff;--warn:#b45309;--bad:#dc2626;--ok:#15803d;--note:#2563eb;--chip:#eef2f0}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1312;--card:#171c1b;--ink:#e8ecea;--mute:#94a09b;--line:#26302d;--acc:#2dd4bf;--acc-ink:#062b27;--chip:#1f2725;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--note:#60a5fa}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+[hidden]{display:none!important}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top{max-width:760px;margin:auto;padding:12px 16px 0;display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:18px;margin:0}h1 span{color:var(--acc)}
+.who{display:flex;align-items:center;gap:8px;font-size:13px}
+#syncSt{font-size:12px;color:var(--mute)}
+nav{max-width:760px;margin:auto;display:flex;gap:4px;padding:8px 16px;overflow-x:auto}
+nav button{flex:none;border:0;background:none;color:var(--mute);padding:8px 12px;border-radius:999px;font:inherit;font-weight:600;cursor:pointer}
+nav button.on{background:var(--acc);color:var(--acc-ink)}
+main{max-width:760px;margin:auto;padding:16px 16px 80px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 12px}
+.big{font-size:30px;font-weight:700;letter-spacing:-.5px}
+.mute{color:var(--mute);font-size:13px}
+.bar{height:12px;background:var(--chip);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .4s}
+.marks{position:relative;height:16px;font-size:11px;color:var(--mute)}
+.marks span{position:absolute;transform:translateX(-50%)}
+.alert{border-radius:12px;padding:12px 14px;margin-bottom:14px;font-weight:600}
+.lv-ok{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.lv-note{background:color-mix(in srgb,var(--note) 14%,transparent);color:var(--note)}
+.lv-warn{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.lv-bad{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+label.chk{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px}
+label.chk input{width:auto}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+.btn{border:0;background:var(--acc);color:var(--acc-ink);padding:11px 16px;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+.btn.ghost{background:var(--chip);color:var(--ink)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn.full{width:100%;margin-top:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:6px 11px;border-radius:99px;font:inherit;font-size:13px;cursor:pointer}
+.chip.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.chip.fq{border-style:dashed}
+.cat{margin:10px 0}.cat .h{display:flex;justify-content:space-between;gap:8px;font-size:14px;margin-bottom:4px}
+.cat .bar{height:8px}.cat .bar i{background:var(--acc)}
+ul.ins{margin:0;padding:0;list-style:none}ul.ins li{padding:8px 0;border-bottom:1px dashed var(--line)}ul.ins li:last-child{border:0}
+.day{font-size:12px;font-weight:700;color:var(--mute);margin:14px 0 4px;text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between}
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.item.click{cursor:pointer}
+.item .c{flex:1;min-width:0}.item .c small{display:block;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .m{font-weight:700;white-space:nowrap}
+.x{border:0;background:none;color:var(--mute);font-size:18px;cursor:pointer;padding:4px 6px}
+.cols{display:flex;align-items:flex-end;gap:6px;height:140px;margin-top:8px;position:relative}
+.cols div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:11px;color:var(--mute);min-width:0}
+.cols b{display:block;width:100%;background:var(--acc);border-radius:6px 6px 0 0;min-height:2px}
+.cols span,.cols em{display:block;height:16px;line-height:16px;font-style:normal;white-space:nowrap}
+.cols b.cur{opacity:.55}.cols b.over{background:var(--bad)}
+.cols .lim{position:absolute;left:0;right:0;border-top:2px dashed var(--warn);height:0}
+.meta{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+details summary{cursor:pointer;color:var(--mute);font-size:13px;margin-top:8px}
+code{background:var(--chip);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(140px);background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;width:max-content;max-width:calc(100% - 32px);transition:transform .3s;z-index:20;font-weight:600;display:flex;gap:12px;align-items:center;white-space:pre-line}
+#toast.on{transform:translateX(-50%) translateY(0)}
+#toast button{background:none;border:0;color:var(--acc);font:inherit;font-weight:800;cursor:pointer;padding:0}
+@media (prefers-color-scheme:light){#toast button{color:#5eead4}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--chip);border-radius:10px;padding:10px}.stat b{display:block;font-size:18px}
+.cierre{border-color:var(--acc)}.cierre.bad{border-color:var(--bad)}
+/* login */
+#login{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:48px 16px}
+.lg{width:100%;max-width:420px;text-align:center}
+.logo{font-size:52px}
+.perfiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:20px 0}
+.perfil{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 8px;cursor:pointer;font:inherit;color:var(--ink)}
+.perfil .e{font-size:40px;display:block;line-height:1.1}
+.ico{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.25em}
+#nEmo .chip,#cEmo .chip{font-size:20px;padding:4px 9px}
+.perfil.add{border-style:dashed;color:var(--mute)}
+.lg .card{text-align:left}
+.err{color:var(--bad);font-weight:600;min-height:1.2em;margin:8px 0 0}
+.pend{background:color-mix(in srgb,var(--note) 14%,transparent);color:var(--note);border-radius:12px;padding:10px 12px;font-weight:600;margin-top:12px}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);width:min(440px,calc(100% - 32px));padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{margin:0 0 6px;font-size:16px}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login" hidden>
+  <div class="lg">
+    <div class="logo">🐜</div>
+    <h1>Gastos <span>Hormiga</span></h1>
+    <div id="pendLogin"></div>
+    <div id="lgLista">
+      <p class="mute">¿Quién va a registrar?</p>
+      <div class="perfiles" id="perfiles"></div>
+    </div>
+    <div id="pinBox" class="card" hidden>
+      <h2 id="pinWho"></h2>
+      <form id="fPin">
+        <label>PIN</label>
+        <input id="pinIn" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="current-password" maxlength="8" required>
+        <label class="chk"><input type="checkbox" id="pinRec"> Mantener mi sesión abierta en este dispositivo</label>
+        <button class="btn full" id="pinOk">Entrar</button>
+        <button type="button" class="btn ghost full" id="pinBack">Volver</button>
+      </form>
+      <p class="err" id="pinErr"></p>
+    </div>
+    <div id="newBox" class="card" hidden>
+      <h2>Nuevo usuario</h2>
+      <form id="fNew">
+        <label>Nombre</label><input id="nNom" maxlength="20" required autocomplete="off">
+        <label>Ícono</label><div class="chips" id="nEmo"></div>
+        <div class="row">
+          <div><label>PIN (4 a 8 números)</label><input id="nPin" type="password" inputmode="numeric" pattern="[0-9]{4,8}" required autocomplete="new-password"></div>
+          <div><label>Repite el PIN</label><input id="nPin2" type="password" inputmode="numeric" pattern="[0-9]{4,8}" required autocomplete="new-password"></div>
+        </div>
+        <label class="chk" id="nMigWrap" hidden><input type="checkbox" id="nMig" checked> Pasar a este usuario los datos de la versión anterior</label>
+        <button class="btn full">Crear usuario</button>
+        <button type="button" class="btn ghost full" id="newBack">Cancelar</button>
+      </form>
+      <p class="err" id="newErr"></p>
+      <p class="mute">Tu PIN cifra tus datos en este dispositivo. Si lo olvidas no se pueden recuperar, salvo que tengas sincronización con GitHub o un respaldo exportado.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" hidden>
+<header>
+  <div class="top">
+    <h1>🐜 Gastos <span>Hormiga</span></h1>
+    <div class="who"><span id="syncSt"></span><span id="quien"></span><button class="btn sm ghost" id="btnSalir" title="Cerrar sesión">Salir</button></div>
+  </div>
+  <nav id="tabs">
+    <button data-t="inicio" class="on">Inicio</button>
+    <button data-t="gastos">Gastos</button>
+    <button data-t="analisis">Análisis</button>
+    <button data-t="metas">Metas</button>
+    <button data-t="ajustes">Ajustes</button>
+  </nav>
+</header>
+<main>
+<!-- INICIO -->
+<section id="inicio" class="on">
+  <div id="alerta"></div>
+  <div id="cierre"></div>
+  <div class="card">
+    <div class="mute" id="semRango"></div>
+    <div class="big" id="semTotal"></div>
+    <div class="mute" id="semLim"></div>
+    <div class="bar" style="margin-top:10px"><i id="semBar"></i></div>
+    <div class="marks" id="marks"></div>
+    <div class="mute" id="racha"></div>
+  </div>
+  <div class="card">
+    <h2>Registrar gasto</h2>
+    <div id="frecWrap" hidden><div class="mute">Frecuentes (un toque y listo):</div><div class="chips" id="frec"></div></div>
+    <form id="fGasto">
+      <div class="row">
+        <div><label>Monto (S/)</label><input id="gMonto" type="number" inputmode="decimal" step="0.01" min="0.01" required placeholder="0.00"></div>
+        <div><label>Fecha</label><input id="gFecha" type="date" required></div>
+      </div>
+      <label>Concepto</label>
+      <select id="gCat" required></select>
+      <div class="chips" id="gChips"></div>
+      <div class="row">
+        <div><label>Pago</label><select id="gPago"></select></div>
+        <div><label>Nota (opcional)</label><input id="gNota" maxlength="80" placeholder="Ej: a la oficina"></div>
+      </div>
+      <button class="btn full">Agregar</button>
+    </form>
+  </div>
+  <div class="card"><h2>Lo que dice tu semana</h2><ul class="ins" id="insIni"></ul></div>
+</section>
+
+<!-- GASTOS -->
+<section id="gastos">
+  <div class="card">
+    <div class="row">
+      <div><label>Mes</label><input type="month" id="fMes"></div>
+      <div><label>Concepto</label><select id="fCat"></select></div>
+    </div>
+    <div class="row">
+      <div><label>Pago</label><select id="fPago"></select></div>
+      <div><label>Buscar</label><input id="fTxt" placeholder="nota o concepto"></div>
+    </div>
+    <p class="mute" id="fResumen"></p>
+    <div id="lista"></div>
+  </div>
+</section>
+
+<!-- ANALISIS -->
+<section id="analisis">
+  <div class="card"><h2>Últimas 8 semanas vs. tu límite</h2><div class="cols" id="semanas"></div><p class="mute" id="semanasNota"></p></div>
+  <div class="card"><h2>Esta semana por concepto</h2><div id="catSem"></div></div>
+  <div class="card"><h2>Este mes por concepto</h2><div id="catMes"></div></div>
+  <div class="card"><h2>Este mes por forma de pago</h2><div id="pagoMes"></div></div>
+  <div class="card"><h2>Últimos 6 meses</h2><div class="cols" id="meses"></div><p class="mute" id="mesesNota"></p></div>
+  <div class="card"><h2>Observaciones</h2><ul class="ins" id="insAll"></ul></div>
+</section>
+
+<!-- METAS -->
+<section id="metas">
+  <div class="card" id="ingresoCard"></div>
+  <div class="card"><h2>Meta sugerida de gasto hormiga</h2><div id="sugerida"></div></div>
+  <div class="card">
+    <h2>Mis metas de ahorro</h2>
+    <div id="listaMetas"></div>
+    <form id="fMeta" class="meta">
+      <label>Nombre de la meta</label><input id="mNom" required maxlength="40" placeholder="Ej: Viaje a Cusco">
+      <div class="row">
+        <div><label>Monto objetivo (S/)</label><input id="mObj" type="number" step="0.01" min="1" required></div>
+        <div><label>Para (mes)</label><input id="mFin" type="month" required></div>
+      </div>
+      <button class="btn full">Crear meta</button>
+    </form>
+  </div>
+</section>
+
+<!-- AJUSTES -->
+<section id="ajustes">
+  <div class="card">
+    <h2>Mi cuenta</h2>
+    <div id="cuentaInfo" class="mute"></div>
+    <label>Mi ícono</label><div class="chips" id="cEmo"></div>
+    <label class="chk"><input type="checkbox" id="cRec"> Mantener mi sesión abierta en este dispositivo</label>
+    <label>Bloquear por inactividad</label>
+    <select id="cLock"><option value="0">Nunca</option><option value="5">5 minutos</option><option value="10">10 minutos</option><option value="30">30 minutos</option></select>
+    <div class="row" style="margin-top:12px"><button class="btn ghost" id="btnPin">Cambiar PIN</button><button class="btn ghost danger" id="btnDelUser">Eliminar mi usuario</button></div>
+  </div>
+  <div class="card">
+    <h2>Límites y alertas</h2>
+    <div class="row">
+      <div><label>Límite semanal (S/)</label><input id="cLim" type="number" step="1" min="0"></div>
+      <div><label>Avisarme al (%)</label><input id="cUmb" placeholder="50,70,80"></div>
+    </div>
+    <label class="chk" style="margin-top:12px"><input type="checkbox" id="cFijos"> Contar los gastos fijos dentro del límite semanal</label>
+    <button class="btn ghost full" id="btnNotif">Activar notificaciones del navegador</button>
+  </div>
+  <div class="card">
+    <h2>Ingreso mensual (opcional)</h2>
+    <p class="mute">Sirve para saber qué parte de tu sueldo se va en gastos hormiga.</p>
+    <input id="cIng" type="number" step="1" min="0" placeholder="Ej: 2500">
+  </div>
+  <div class="card">
+    <h2>Conceptos</h2>
+    <p class="mute">Opcional: un límite semanal propio para cada concepto (también avisa en tus porcentajes).</p>
+    <div id="cCats"></div>
+    <form id="fCat2" class="row" style="margin-top:10px"><input id="nCat" placeholder="Nuevo concepto" maxlength="30" required><button class="btn" style="flex:none">Añadir</button></form>
+  </div>
+  <div class="card">
+    <h2>Formas de pago</h2>
+    <div id="cPagos"></div>
+    <form id="fPago2" class="row" style="margin-top:10px"><input id="nPago" placeholder="Nueva forma de pago" maxlength="20" required><button class="btn" style="flex:none">Añadir</button></form>
+  </div>
+  <div class="card">
+    <h2>Gastos fijos y suscripciones</h2>
+    <p class="mute">Se registran solos cada mes en el día que indiques (por ejemplo Netflix, Spotify o el plan del celular), a partir de la próxima fecha.</p>
+    <div id="cRecs"></div>
+    <form id="fRec" class="meta">
+      <div class="row"><div><label>Nombre</label><input id="rNom" required maxlength="30" placeholder="Spotify"></div><div><label>Monto (S/)</label><input id="rMonto" type="number" step="0.01" min="0.01" required></div></div>
+      <div class="row"><div><label>Concepto</label><select id="rCat"></select></div><div><label>Pago</label><select id="rPago"></select></div><div><label>Día</label><input id="rDia" type="number" min="1" max="31" required value="1"></div></div>
+      <button class="btn full">Añadir gasto fijo</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2>Registro rápido por enlace</h2>
+    <p class="mute">Abre este enlace (o úsalo en un atajo del celular) y el gasto se registra en tu usuario:</p>
+    <p><code id="linkEj"></code></p>
+    <p class="mute">Parámetros: <code>monto</code>, <code>concepto</code>, <code>pago</code>, <code>nota</code>, <code>fecha</code> (AAAA-MM-DD) y <code>u</code> (tu nombre de usuario). Si la sesión no está abierta, te pedirá el PIN y luego lo guarda.</p>
+  </div>
+  <div class="card">
+    <h2>Sincronizar con GitHub (opcional)</h2>
+    <p class="mute">Guarda tus datos en un repositorio <b>privado</b> para verlos en todos tus dispositivos. El token se guarda cifrado con tu PIN y nunca se sube al repo.</p>
+    <div class="row"><div><label>Usuario de GitHub</label><input id="ghOwner" autocomplete="off"></div><div><label>Repo privado de datos</label><input id="ghRepo" placeholder="mis-gastos-data" autocomplete="off"></div></div>
+    <div class="row"><div><label>Archivo</label><input id="ghPath" autocomplete="off"></div><div><label>Rama</label><input id="ghBranch" placeholder="main" autocomplete="off"></div></div>
+    <label>Token (fine-grained, permiso Contents: Read and write solo en ese repo)</label><input id="ghTok" type="password" autocomplete="off">
+    <div class="row" style="margin-top:14px"><button class="btn" id="ghSave">Guardar y sincronizar</button><button class="btn ghost" id="ghOff">Desconectar</button></div>
+  </div>
+  <div class="card">
+    <h2>Respaldo</h2>
+    <div class="row"><button class="btn ghost" id="expJson">Exportar JSON</button><button class="btn ghost" id="expCsv">Exportar CSV</button></div>
+    <label>Importar JSON (se combina con lo que ya tienes)</label><input type="file" id="impJson" accept=".json,application/json">
+  </div>
+</section>
+</main>
+</div>
+
+<dialog id="dlg">
+  <form id="fEdit">
+    <h2>Editar gasto</h2>
+    <p class="mute" id="eInfo"></p>
+    <div class="row">
+      <div><label>Monto (S/)</label><input id="eMonto" type="number" inputmode="decimal" step="0.01" min="0.01" required></div>
+      <div><label>Fecha</label><input id="eFecha" type="date" required></div>
+    </div>
+    <div class="row">
+      <div><label>Concepto</label><select id="eCat"></select></div>
+      <div><label>Pago</label><select id="ePago"></select></div>
+    </div>
+    <label>Nota</label><input id="eNota" maxlength="80">
+    <div class="row" style="margin-top:16px">
+      <button type="button" class="btn ghost danger" id="eDel">Eliminar</button>
+      <button type="button" class="btn ghost" id="eCancel">Cancelar</button>
+      <button class="btn">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="toastBtn" hidden></button></div>
+
+<script>
+'use strict';
+/* ================= utilidades ================= */
+const MAX_USERS=3, ITER=150000;
+const K_USERS='hormiga_users_v2',K_DATA='hormiga_data_v2_',K_SESS='hormiga_sess_v2_',K_LAST='hormiga_last_v2',K_FAIL='hormiga_fail_v2_',K_PEND='hormiga_pend_v2',K_V1='hormiga_v1',K_GH1='hormiga_gh_v1';
+const $=id=>document.getElementById(id);
+const ls={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const ss={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}},del(k){try{sessionStorage.removeItem(k)}catch(e){}}};
+const fmt=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const lunes=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const diasEntre=(a,b)=>Math.round((b-a)/864e5);
+const diaSemana=()=>((new Date().getDay()+6)%7)+1; // 1=lunes … 7=domingo
+const soles=n=>'S/ '+(Math.round((+n||0)*100)/100).toFixed(2);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const num=v=>{const n=parseFloat(String(v??'').replace(',','.'));return isFinite(n)?Math.round(n*100)/100:0};
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','set','oct','nov','dic'];
+const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const EMOJIS=['oso','osa','🦊','🐼','🐯','🐸','🦉','🐙','🌻','🚀'];
+const OSO_BASE=(cab,oreja)=>`<circle cx="15" cy="17" r="10" fill="${oreja}"/><circle cx="49" cy="17" r="10" fill="${oreja}"/><circle cx="15" cy="17" r="5" fill="#E9B98A"/><circle cx="49" cy="17" r="5" fill="#E9B98A"/><circle cx="32" cy="36" r="23" fill="${cab}"/><ellipse cx="32" cy="45" rx="11.5" ry="8.5" fill="#F1D3B3"/><ellipse cx="32" cy="40.5" rx="4.2" ry="3.1" fill="#3B2314"/><path d="M28 47q4 4 8 0" fill="none" stroke="#3B2314" stroke-width="2" stroke-linecap="round"/>`;
+const ICONOS={
+  oso:`<svg class="ico" viewBox="0 0 64 64" aria-label="oso">${OSO_BASE('#9C6431','#7E4E24')}<circle cx="24" cy="32" r="2.8" fill="#3B2314"/><circle cx="40" cy="32" r="2.8" fill="#3B2314"/></svg>`,
+  osa:`<svg class="ico" viewBox="0 0 64 64" aria-label="osa">${OSO_BASE('#B97B45','#985F30')}<circle cx="24" cy="32" r="2.8" fill="#3B2314"/><circle cx="40" cy="32" r="2.8" fill="#3B2314"/><path d="M20.5 29.5l-2-2M22.5 28.5l-1-2.5M43.5 29.5l2-2M41.5 28.5l1-2.5" stroke="#3B2314" stroke-width="1.4" stroke-linecap="round"/><circle cx="19" cy="41" r="3.6" fill="#F28CB1" opacity=".6"/><circle cx="45" cy="41" r="3.6" fill="#F28CB1" opacity=".6"/><path d="M50 9l-9 5 9 5zM50 9l9-4v18l-9-4z" fill="#EC5F9A"/><circle cx="50" cy="14" r="3.2" fill="#C93C78"/></svg>`
+};
+const ico=e=>ICONOS[e]||esc(e);
+
+/* ================= cifrado (PIN → clave AES) ================= */
+const te=new TextEncoder(),td=new TextDecoder();
+const b64=buf=>{const by=buf instanceof Uint8Array?buf:new Uint8Array(buf);let s='';for(let i=0;i<by.length;i+=0x8000)s+=String.fromCharCode.apply(null,by.subarray(i,i+0x8000));return btoa(s)};
+const unb64=s=>Uint8Array.from(atob(String(s).replace(/\s/g,'')),c=>c.charCodeAt(0));
+async function deriveKey(pin,salt,iter){const base=await crypto.subtle.importKey('raw',te.encode(pin),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:unb64(salt),iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},true,['encrypt','decrypt'])}
+async function enc(key,obj){const iv=crypto.getRandomValues(new Uint8Array(12));const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,te.encode(JSON.stringify(obj)));return{iv:b64(iv),ct:b64(ct)}}
+async function dec(key,blob){if(!blob)throw new Error('sin datos');const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(blob.iv)},key,unb64(blob.ct));return JSON.parse(td.decode(pt))}
+const exportKey=async k=>b64(await crypto.subtle.exportKey('raw',k));
+const importKey=s=>crypto.subtle.importKey('raw',unb64(s),{name:'AES-GCM'},true,['encrypt','decrypt']);
+
+/* ================= estado ================= */
+const DEF={v:2,gastos:[],borrados:[],cats:['Taxi','Golosinas','Comida de la calle','Ropa','Café'],pagos:['Efectivo','Yape','Plin','Tarjeta'],
+  config:{limiteSemanal:250,umbrales:[50,70,80],limitesCat:{},ingresoMensual:0,autolock:10,fijosEnLimite:false,ultimoPago:'Efectivo'},
+  metas:[],recurrentes:[],avisos:{},cierres:{},gh:null,updatedAt:0};
+let USERS=ls.get(K_USERS)||[], U=null, KEY=null, S=null, RECORDAR=false;
+
+function normalizar(r){
+  r=r||{};const s=Object.assign(clone(DEF),r);s.config=Object.assign(clone(DEF.config),r.config||{});
+  ['gastos','borrados','cats','pagos','metas','recurrentes'].forEach(k=>{if(!Array.isArray(s[k]))s[k]=clone(DEF[k])});
+  ['avisos','cierres'].forEach(k=>{if(!s[k]||typeof s[k]!=='object')s[k]={}});
+  if(!s.config.limitesCat||typeof s.config.limitesCat!=='object')s.config.limitesCat={};
+  s.gastos=s.gastos.filter(g=>g&&g.id&&/^\d{4}-\d{2}-\d{2}$/.test(g.fecha)&&num(g.monto)>0).map(g=>({...g,monto:num(g.monto),cat:g.cat||'Otros',pago:g.pago||''}));
+  s.metas=s.metas.filter(m=>m&&m.id).map(m=>({...m,objetivo:num(m.objetivo),aportes:(m.aportes||[]).map((a,i)=>({...a,monto:num(a.monto),id:a.id||`a_${m.id}_${a.fecha}_${a.monto}_${i}`}))}));
+  return s;
+}
+
+/* ================= guardado ================= */
+let saveP=Promise.resolve();
+function persist(){
+  if(!U||!KEY)return saveP;const id=U.id,k=KEY,data=clone(S);
+  saveP=saveP.then(async()=>{if(!ls.set(K_DATA+id,await enc(k,data)))toast('⚠ No se pudo guardar: el almacenamiento del navegador está lleno.')}).catch(e=>console.error(e));
+  return saveP;
+}
+function save(){S.updatedAt=Date.now();persist();render();schedulePush()}
+
+/* ================= cálculos ================= */
+const enRango=(a,b)=>{const A=fmt(a),B=fmt(b);return S.gastos.filter(g=>g.fecha>=A&&g.fecha<=B)};
+const base=arr=>S.config.fijosEnLimite?arr:arr.filter(g=>!g.recId); // lo "hormiga"
+const suma=arr=>arr.reduce((t,g)=>t+(+g.monto||0),0);
+const agrupar=(arr,campo)=>{const m={};arr.forEach(g=>{const k=g[campo]||'Sin especificar';m[k]=(m[k]||0)+(+g.monto||0)});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+const porCat=arr=>agrupar(arr,'cat');
+const semana=(off=0)=>{const l=addDays(lunes(new Date()),7*off);return{ini:l,fin:addDays(l,6),key:fmt(l)}};
+const mesRango=(off=0)=>{const d=new Date();const ini=new Date(d.getFullYear(),d.getMonth()+off,1);return{ini,fin:new Date(ini.getFullYear(),ini.getMonth()+1,0),key:fmt(ini).slice(0,7)}};
+const umbrales=()=>[...new Set((S.config.umbrales||[]).map(Number).filter(x=>x>0&&x<100))].sort((a,b)=>a-b);
+const primeraFecha=()=>{let f=null;base(S.gastos).forEach(g=>{if(!f||g.fecha<f)f=g.fecha});return f};
+function nivelCls(p){const u=umbrales();if(p>=100||(u.length&&p>=u[u.length-1]))return'lv-bad';if(u.length>1&&p>=u[u.length-2])return'lv-warn';if(u.length&&p>=u[0])return'lv-note';return'lv-ok'}
+
+/* Proyección: mezcla tu ritmo de esta semana con tu historial (más peso al historial a inicio de semana) */
+function proyeccion(){
+  const w=semana(0),tot=suma(base(enRango(w.ini,w.fin))),d=diaSemana(),rest=7-d,ritmo=tot/d;
+  const pf=primeraFecha();let hist=null;
+  if(pf&&pf<=fmt(addDays(w.ini,-7))){
+    const fin=addDays(w.ini,-1),ini0=addDays(w.ini,-28),ini=parse(pf)>ini0?parse(pf):ini0;
+    hist=suma(base(enRango(ini,fin)))/(diasEntre(ini,fin)+1);
+  }
+  const peso=d/7,diario=hist===null?ritmo:peso*ritmo+(1-peso)*hist;
+  return{tot,proy:tot+diario*rest,hist,ritmo,d};
+}
+
+/* ================= alertas ================= */
+function revisarAlertas(){
+  const w=semana(0),arr=base(enRango(w.ini,w.fin));
+  Object.keys(S.avisos).forEach(k=>{if(!k.startsWith(w.key))delete S.avisos[k]});
+  const lim=+S.config.limiteSemanal,grupos=[['total','tu límite semanal',suma(arr),lim]];
+  Object.entries(S.config.limitesCat||{}).forEach(([c,l])=>{if(+l>0)grupos.push(['c:'+c,'el límite de '+c,suma(arr.filter(g=>g.cat===c)),+l])});
+  const msgs=[];
+  grupos.forEach(([id,nom,t,l])=>{
+    if(!(l>0))return;const p=t/l*100;let nuevo=null;
+    [...umbrales(),100].forEach(x=>{const k=w.key+':'+id+':'+x;if(p>=x&&!S.avisos[k]){S.avisos[k]=1;nuevo=x}});
+    if(nuevo!==null)msgs.push(nuevo>=100?`⛔ Superaste ${nom}: ${soles(t)} de ${soles(l)}`:`⚠️ Llegaste al ${nuevo}% de ${nom}: ${soles(t)} de ${soles(l)}`);
+  });
+  if(lim>0){const P=proyeccion(),k=w.key+':ritmo',u0=umbrales()[0]||50;
+    if(P.d>=2&&P.tot/lim*100<u0&&P.proy>lim*1.05&&!S.avisos[k]){S.avisos[k]=1;msgs.push(`🔮 Aún vas por debajo del ${u0}%, pero a este ritmo cerrarías la semana en ${soles(P.proy)}.`)}}
+  if(msgs.length){persist();toast(msgs.join('\n'),null,6000);try{if('Notification' in window&&Notification.permission==='granted')msgs.forEach(m=>new Notification('Gastos Hormiga',{body:m,icon:'icon-192.png'}))}catch(e){}}
+}
+
+/* ================= inteligencia ================= */
+function frecuentes(){
+  const desde=fmt(addDays(new Date(),-60)),m={};
+  S.gastos.filter(g=>!g.recId&&g.fecha>=desde).forEach(g=>{const k=g.cat+'|'+g.monto;(m[k]=m[k]||{cat:g.cat,monto:g.monto,pago:g.pago,n:0}).n++});
+  return Object.values(m).filter(x=>x.n>=3).sort((a,b)=>b.n-a.n).slice(0,4);
+}
+function racha(){
+  const pf=primeraFecha();if(!pf)return null;
+  const dias=new Set(S.gastos.filter(g=>!g.recId).map(g=>g.fecha)),hoy=new Date();
+  let n=0,d=new Date(hoy);while(fmt(d)>=pf&&!dias.has(fmt(d))){n++;d=addDays(d,-1)}
+  const m=mesRango(0),ini=parse(pf)>m.ini?parse(pf):m.ini;let libres=0,tot=0;
+  for(let x=new Date(ini);x<=hoy;x=addDays(x,1)){tot++;if(!dias.has(fmt(x)))libres++}
+  return{n,libres,tot,hoyGasto:dias.has(fmt(hoy))};
+}
+function insights(full){
+  const out=[],w=semana(0),arr=base(enRango(w.ini,w.fin)),tot=suma(arr),lim=+S.config.limiteSemanal,d=diaSemana();
+  if(arr.length){
+    const [c,v]=porCat(arr)[0];
+    out.push(`🐜 Esta semana lo que más se lleva tu plata es <b>${esc(c)}</b>: ${soles(v)} (${Math.round(v/tot*100)}% del total).`);
+    if(lim>0){
+      const P=proyeccion();
+      out.push(`📈 Proyección al domingo: <b>${soles(P.proy)}</b> (${Math.round(P.proy/lim*100)}% de tu límite)${P.hist!==null?', combinando tu ritmo de esta semana con tu historial':''}.`);
+      const disp=lim-tot,rest=8-d;
+      out.push(disp>0?`💡 Te quedan ${soles(disp)}: unos <b>${soles(disp/rest)} por día</b> hasta el domingo, contando hoy.`:`⛔ Ya no tienes margen esta semana: te pasaste por ${soles(-disp)}.`);
+    }
+  }else out.push('🙌 Aún no registras gastos hormiga esta semana.');
+  // misma altura de la semana pasada (comparación justa)
+  const ps=semana(-1),antes=suma(base(enRango(ps.ini,addDays(ps.ini,d-1))));
+  if(S.gastos.some(g=>g.fecha<=fmt(ps.fin))&&(tot||antes)){const dif=tot-antes;
+    if(Math.abs(dif)>=1)out.push(dif>0?`🔺 Vas ${soles(dif)} por encima de lo que llevabas a esta altura la semana pasada (${soles(antes)}).`:`🟢 Vas ${soles(-dif)} por debajo de lo que llevabas a esta altura la semana pasada (${soles(antes)}).`)}
+  const prev=[1,2,3,4].map(i=>semana(-i)),hist={};let n=0;
+  prev.forEach(s=>{const a=base(enRango(s.ini,s.fin));if(a.length)n++;porCat(a).forEach(([c,v])=>hist[c]=(hist[c]||0)+v)});
+  if(n>=2){
+    porCat(arr).forEach(([c,v])=>{const p=(hist[c]||0)/n;if(v>p*1.2&&v-p>=5)out.push(`⚠️ En <b>${esc(c)}</b> ya llevas ${soles(v)}, más que tu promedio de una semana completa (${soles(p)}).`)});
+  }
+  const peq=arr.filter(g=>+g.monto<=10);
+  if(peq.length>=5)out.push(`🪙 Hiciste ${peq.length} gastos pequeños (≤ S/ 10) esta semana que suman ${soles(suma(peq))}. Así se va la plata sin notarlo.`);
+  if(full){
+    const mA=mesRango(0),mes=base(enRango(mA.ini,mA.fin)),tm=suma(mes);
+    if(n>=2)out.push(`📊 Tu promedio semanal (últimas ${n} semanas con datos) es ${soles(Object.values(hist).reduce((a,b)=>a+b,0)/n)}.`);
+    if(tm>0){const dig=suma(mes.filter(g=>/yape|plin|tarjeta|transfer/i.test(g.pago||'')));if(dig/tm>=0.6)out.push(`📱 El ${Math.round(dig/tm*100)}% de tus gastos del mes fue con pago digital. Es cómodo, pero se siente menos: revisa tu historial de Yape o Plin de vez en cuando.`)}
+    const fq=frecuentes()[0];if(fq)out.push(`🔁 Tu gasto más repetido es <b>${esc(fq.cat)} de ${soles(fq.monto)}</b>: ${fq.n} veces en 60 días (${soles(fq.n*fq.monto)}).`);
+    if(S.gastos.length>=15){const m=Array(7).fill(0);base(S.gastos).forEach(g=>m[parse(g.fecha).getDay()]+=+g.monto);out.push(`🗓️ Históricamente el día que más gastas es el <b>${DIAS[m.indexOf(Math.max(...m))]}</b>.`)}
+    const mP=mesRango(-1),b=Object.fromEntries(porCat(base(enRango(mP.ini,mP.fin))));
+    if(Object.keys(b).length){let peor=null;porCat(mes).forEach(([c,v])=>{const x=v-(b[c]||0);if(x>0&&(!peor||x>peor[1]))peor=[c,x]});if(peor)out.push(`📌 Comparado con todo el mes pasado, el concepto que más creció es <b>${esc(peor[0])}</b> (+${soles(peor[1])}).`)}
+    const fijos=suma(enRango(mA.ini,mA.fin).filter(g=>g.recId));if(fijos>0)out.push(`🧾 Gastos fijos y suscripciones registrados este mes: ${soles(fijos)}.`);
+  }
+  return out;
+}
+function mesesHist(n=6){const r=[];for(let i=n-1;i>=0;i--){const m=mesRango(-i);r.push({...m,tot:suma(base(enRango(m.ini,m.fin))),cur:i===0})}return r}
+function sugerencia(){
+  const pf=primeraFecha();
+  const prev=mesesHist(4).filter(m=>!m.cur&&m.tot>0&&pf&&pf<=fmt(addDays(m.ini,7)));// solo meses (casi) completos
+  if(!prev.length)return null;
+  const prom=prev.reduce((a,m)=>a+m.tot,0)/prev.length,meta=Math.floor(prom*0.9);
+  return{prom,meta,ahorro:prom-meta,n:prev.length};
+}
+function cierreSemana(){
+  const p=semana(-1),lim=+S.config.limiteSemanal;
+  if(!(lim>0)||S.cierres[p.key])return'';
+  const pf=primeraFecha();if(!pf||pf>fmt(p.fin))return'';
+  const arr=base(enRango(p.ini,p.fin)),t=suma(arr),sobra=lim-t;
+  if(sobra>0){
+    const opts=S.metas.filter(m=>suma(m.aportes)<m.objetivo).map(m=>`<option value="${esc(m.id)}">${esc(m.nombre)}</option>`).join('');
+    return`<div class="card cierre"><h2>🎉 Cerraste la semana pasada en ${soles(t)}</h2><p>Te sobraron <b>${soles(sobra)}</b> de tu límite. ${opts?'¿Los separas para una de tus metas?':'Crea una meta en la pestaña Metas para empezar a guardar lo que te sobra.'}</p>
+      ${opts?`<div class="row"><select id="cierreMeta">${opts}</select><input id="cierreMonto" type="number" step="0.01" min="0.01" value="${sobra.toFixed(2)}"></div><div class="row" style="margin-top:10px"><button class="btn" data-cierre="ok">Separar</button><button class="btn ghost" data-cierre="no">Ahora no</button></div>`:`<button class="btn ghost full" data-cierre="no">Entendido</button>`}</div>`;
+  }
+  const pc=porCat(arr)[0];
+  return`<div class="card cierre bad"><h2>La semana pasada te pasaste por ${soles(-sobra)}</h2><p>Gastaste ${soles(t)} de ${soles(lim)}. Lo que más pesó fue <b>${esc(pc[0])}</b> (${soles(pc[1])}). Esta semana intenta bajarle ahí.</p><button class="btn ghost full" data-cierre="no">Entendido</button></div>`;
+}
+
+/* ================= gastos fijos ================= */
+function generarRecurrentes(){
+  const hoyS=fmt(new Date()),del=new Set(S.borrados),ids=new Set(S.gastos.map(g=>g.id)),now=new Date();let n=0;
+  S.recurrentes.filter(r=>r.activo!==false).forEach(r=>{
+    let[y,m]=r.desde.split('-').map(Number);
+    while(y<now.getFullYear()||(y===now.getFullYear()&&m<=now.getMonth()+1)){
+      const dim=new Date(y,m,0).getDate(),mm=String(m).padStart(2,'0'),f=`${y}-${mm}-${String(Math.min(r.dia,dim)).padStart(2,'0')}`,id=`r_${r.id}_${y}${mm}`;
+      if(f>=r.desde&&f<=hoyS&&!ids.has(id)&&!del.has(id)){S.gastos.push({id,fecha:f,monto:num(r.monto),cat:r.cat,pago:r.pago||'',nota:r.nombre+' (automático)',ts:Date.now(),recId:r.id});n++}
+      if(++m>12){m=1;y++}
+    }
+  });
+  return n;
+}
+
+/* ================= render ================= */
+function opciones(lista,sel,vacio){return(vacio?`<option value="">${vacio}</option>`:'')+lista.map(c=>`<option${c===sel?' selected':''}>${esc(c)}</option>`).join('')}
+function barras(arr,lims){
+  const t=suma(arr),pc=porCat(arr);if(!pc.length)return'<p class="mute">Sin datos todavía.</p>';const mx=pc[0][1];
+  return pc.map(([c,v])=>{const l=lims&&+lims[c];return`<div class="cat"><div class="h"><span>${esc(c)}</span><span><b>${soles(v)}</b> <span class="mute">${Math.round(v/t*100)}%${l?` · lím ${soles(l)}`:''}</span></span></div><div class="bar"><i style="width:${v/mx*100}%${l&&v>l?';background:var(--bad)':''}"></i></div></div>`}).join('');
+}
+function render(){if(!S)return;renderHeader();renderInicio();renderGastos();renderAnalisis();renderMetas();renderAjustes()}
+function renderHeader(){$('quien').innerHTML=`${ico(U.emoji)} ${esc(U.nombre)}`}
+function renderInicio(){
+  const w=semana(0),arr=base(enRango(w.ini,w.fin)),tot=suma(arr),lim=+S.config.limiteSemanal,p=lim>0?tot/lim*100:0;
+  $('semRango').textContent=`Semana del ${w.ini.getDate()} ${MESES[w.ini.getMonth()]} al ${w.fin.getDate()} ${MESES[w.fin.getMonth()]}`;
+  $('semTotal').textContent=soles(tot);
+  $('semLim').textContent=lim>0?`de ${soles(lim)} · ${Math.round(p)}% usado`:'Sin límite semanal definido';
+  const cls=nivelCls(p),bar=$('semBar');bar.style.width=Math.min(p,100)+'%';
+  bar.style.background={'lv-ok':'var(--ok)','lv-note':'var(--note)','lv-warn':'var(--warn)','lv-bad':'var(--bad)'}[cls];
+  $('marks').innerHTML=lim>0?umbrales().map(u=>`<span style="left:${u}%">${u}%</span>`).join(''):'';
+  let msg='';
+  if(lim>0){const u=umbrales().filter(x=>p>=x).pop(),P=proyeccion();
+    msg=p>=100?`⛔ Superaste tu límite semanal por ${soles(tot-lim)}.`:u?`⚠️ Ya usaste más del ${u}% de tu límite. Te quedan ${soles(lim-tot)}.`:(P.d>=2&&P.proy>lim*1.05)?`🔮 Vas bien por ahora, pero a este ritmo cerrarías en ${soles(P.proy)}.`:`✅ Vas bien: te quedan ${soles(lim-tot)} esta semana.`}
+  const catMsgs=Object.entries(S.config.limitesCat||{}).filter(([c,l])=>+l>0).map(([c,l])=>{const t=suma(arr.filter(g=>g.cat===c));return t/l*100>=(umbrales()[0]||50)?`${esc(c)}: ${soles(t)} de ${soles(l)}`:null}).filter(Boolean);
+  $('alerta').innerHTML=(msg?`<div class="alert ${cls}">${msg}</div>`:'')+(catMsgs.length?`<div class="alert lv-warn">Conceptos cerca de su límite → ${catMsgs.join(' · ')}</div>`:'');
+  $('cierre').innerHTML=cierreSemana();
+  const r=racha();
+  $('racha').innerHTML=r?`<div style="margin-top:8px">${r.n>0?`🔥 Racha: <b>${r.n} día(s)</b> sin gastos hormiga${r.hoyGasto?'':' (contando hoy)'}`:'Hoy ya registraste gastos hormiga'} · ${r.libres} de ${r.tot} días libres este mes</div>`:'';
+  const sel=$('gCat').value;$('gCat').innerHTML=opciones(S.cats,S.cats.includes(sel)?sel:S.cats[0]);
+  $('gChips').innerHTML=S.cats.map(c=>`<button type="button" class="chip${c===$('gCat').value?' on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  const ps=$('gPago').value||S.config.ultimoPago;$('gPago').innerHTML=opciones(S.pagos,ps,'—');
+  if(!$('gFecha').value)$('gFecha').value=fmt(new Date());
+  const fq=frecuentes();$('frecWrap').hidden=!fq.length;
+  $('frec').innerHTML=fq.map((f,i)=>`<button type="button" class="chip fq" data-fq="${i}">${esc(f.cat)} · ${soles(f.monto)}</button>`).join('');
+  $('insIni').innerHTML=insights(false).map(x=>`<li>${x}</li>`).join('');
+}
+function renderGastos(){
+  if(!$('fMes').value)$('fMes').value=fmt(new Date()).slice(0,7);
+  const fc=$('fCat').value,fp=$('fPago').value,q=$('fTxt').value.trim().toLowerCase();
+  const cats=[...new Set([...S.cats,...S.gastos.map(g=>g.cat)])];
+  $('fCat').innerHTML=opciones(cats,fc,'Todos');$('fPago').innerHTML=opciones(S.pagos,fp,'Todos');
+  const L=S.gastos.filter(g=>g.fecha.startsWith($('fMes').value)&&(!fc||g.cat===fc)&&(!fp||g.pago===fp)&&(!q||(g.cat+' '+(g.nota||'')).toLowerCase().includes(q)))
+    .sort((a,b)=>b.fecha.localeCompare(a.fecha)||(b.ts||0)-(a.ts||0));
+  $('fResumen').textContent=`${L.length} gasto(s) · total ${soles(suma(L))}. Toca un gasto para editarlo.`;
+  const porDia={};L.forEach(g=>porDia[g.fecha]=(porDia[g.fecha]||0)+g.monto);
+  let h='',last='';
+  L.forEach(g=>{if(g.fecha!==last){last=g.fecha;const d=parse(g.fecha);h+=`<div class="day"><span>${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}</span><span>${soles(porDia[g.fecha])}</span></div>`}
+    h+=`<div class="item click" data-edit="${esc(g.id)}"><div class="c">${g.recId?'🧾 ':''}${esc(g.cat)}<small>${esc([g.pago,g.nota].filter(Boolean).join(' · '))}</small></div><div class="m">${soles(g.monto)}</div></div>`});
+  $('lista').innerHTML=h||'<p class="mute">No hay gastos con este filtro.</p>';
+}
+function renderAnalisis(){
+  const w=semana(0),lim=+S.config.limiteSemanal;
+  const sems=[7,6,5,4,3,2,1,0].map(i=>{const s=semana(-i);return{...s,tot:suma(base(enRango(s.ini,s.fin))),cur:i===0}});
+  const mxS=Math.max(1,lim,...sems.map(s=>s.tot));
+  $('semanas').innerHTML=(lim>0?`<i class="lim" style="bottom:calc(16px + (100% - 32px) * ${lim/mxS})"></i>`:'')+
+    sems.map(s=>`<div><span>${s.tot?Math.round(s.tot):''}</span><b class="${s.cur?'cur':''} ${lim>0&&s.tot>lim?'over':''}" style="height:calc((100% - 32px) * ${s.tot/mxS})"></b><em>${s.ini.getDate()}/${s.ini.getMonth()+1}</em></div>`).join('');
+  const cerr=sems.filter(s=>!s.cur&&s.tot>0);
+  $('semanasNota').textContent=lim>0&&cerr.length?`Cumpliste tu límite en ${cerr.filter(s=>s.tot<=lim).length} de ${cerr.length} semanas con gastos. La línea punteada es tu límite.`:'';
+  $('catSem').innerHTML=barras(base(enRango(w.ini,w.fin)),S.config.limitesCat);
+  const mA=mesRango(0),mesTodo=enRango(mA.ini,mA.fin);
+  $('catMes').innerHTML=barras(mesTodo);
+  const pg=agrupar(mesTodo,'pago'),tp=suma(mesTodo);
+  $('pagoMes').innerHTML=pg.length?pg.map(([c,v])=>`<div class="cat"><div class="h"><span>${esc(c)}</span><span><b>${soles(v)}</b> <span class="mute">${Math.round(v/tp*100)}%</span></span></div><div class="bar"><i style="width:${v/pg[0][1]*100}%"></i></div></div>`).join(''):'<p class="mute">Sin datos todavía.</p>';
+  const mh=mesesHist(6),mx=Math.max(1,...mh.map(m=>m.tot));
+  $('meses').innerHTML=mh.map(m=>`<div><span>${m.tot?Math.round(m.tot):''}</span><b class="${m.cur?'cur':''}" style="height:calc((100% - 32px) * ${m.tot/mx})"></b><em>${MESES[m.ini.getMonth()]}</em></div>`).join('');
+  const dm=new Date().getDate(),dim=mA.fin.getDate(),totM=mh[5].tot;
+  $('mesesNota').textContent=!totM?'':dm>=7?`Este mes llevas ${soles(totM)} en gastos hormiga; a este ritmo cerrarías en ~${soles(totM/dm*dim)}.`:`Este mes llevas ${soles(totM)} en gastos hormiga (la proyección del mes aparece desde el día 7).`;
+  $('insAll').innerHTML=insights(true).map(x=>`<li>${x}</li>`).join('');
+}
+function renderMetas(){
+  const sg=sugerencia(),mA=mesRango(0),totM=suma(base(enRango(mA.ini,mA.fin))),ing=+S.config.ingresoMensual;
+  $('ingresoCard').innerHTML=ing>0?`<h2>Tu ingreso y tus gastos hormiga</h2><div class="grid2"><div class="stat"><span class="mute">Ingreso mensual</span><b>${soles(ing)}</b></div><div class="stat"><span class="mute">Hormiga este mes</span><b>${soles(totM)}</b></div></div><p>Los gastos hormiga se llevan el <b>${(totM/ing*100).toFixed(1)}%</b> de tu ingreso este mes.${sg?` Tu promedio mensual equivale al ${(sg.prom/ing*100).toFixed(1)}%.`:''}</p>`
+    :`<h2>Tu ingreso</h2><p class="mute">Agrega tu ingreso mensual en Ajustes para ver qué parte se va en gastos hormiga.</p>`;
+  $('sugerida').innerHTML=sg?`<div class="grid2"><div class="stat"><span class="mute">Promedio mensual (${sg.n} mes/es)</span><b>${soles(sg.prom)}</b></div><div class="stat"><span class="mute">Meta sugerida (−10%)</span><b>${soles(sg.meta)}</b></div></div>
+    <p>Si este mes gastas como máximo <b>${soles(sg.meta)}</b> en gastos hormiga, liberas unos <b>${soles(sg.ahorro)}</b> para tus metas. Cada mes que lo cumplas, la sugerencia se ajusta sola a tu nuevo promedio.</p>
+    <div class="bar"><i style="width:${Math.min(100,totM/sg.meta*100)}%;background:${totM>sg.meta?'var(--bad)':'var(--acc)'}"></i></div>
+    <p class="mute">Este mes llevas ${soles(totM)} (${Math.round(totM/sg.meta*100)}% de la meta sugerida).</p>`
+    :'<p class="mute">Cuando tengas al menos un mes completo de datos, aquí verás una meta de gasto sugerida según tu historial.</p>';
+  const hoyM=fmt(new Date()).slice(0,7),now=new Date();
+  $('listaMetas').innerHTML=S.metas.map(m=>{
+    const ap=suma(m.aportes),falta=Math.max(0,m.objetivo-ap);
+    const[fy,fm]=m.fin.split('-').map(Number),left=(fy-now.getFullYear())*12+(fm-1-now.getMonth())+1;
+    const necesario=falta/Math.max(1,left),apMes=suma(m.aportes.filter(a=>a.fecha.startsWith(hoyM)));
+    const cubre=sg&&necesario>0?` Lo que liberas bajando tu gasto hormiga a la meta sugerida cubriría ~${Math.min(100,Math.round(sg.ahorro/necesario*100))}% de eso.`:'';
+    const estado=falta<=0?'<p>🎉 ¡Meta cumplida!</p>':left<1?`<p style="color:var(--bad)">⏰ La fecha ya pasó y te faltan ${soles(falta)}. Puedes ampliar el plazo creando la meta de nuevo.</p>`
+      :`<p style="margin:6px 0">Necesitas ahorrar <b>${soles(necesario)}/mes</b> durante ${left} mes(es). Este mes llevas ${soles(apMes)}${apMes>=necesario?' ✅':''}.${cubre}</p>`;
+    return`<div class="meta"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(m.nombre)}</b><button class="x" data-dmeta="${esc(m.id)}" title="Eliminar meta">×</button></div>
+      <div class="mute">${soles(ap)} de ${soles(m.objetivo)} · hasta ${MESES[fm-1]} ${fy}</div>
+      <div class="bar" style="margin:8px 0"><i style="width:${Math.min(100,ap/m.objetivo*100)}%;background:var(--acc)"></i></div>${estado}
+      <button class="btn sm ghost" data-ap="${esc(m.id)}">+ Registrar aporte</button>
+      ${m.aportes.length?`<details><summary>Ver aportes (${m.aportes.length})</summary>${m.aportes.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(a=>`<div class="item"><div class="c">${esc(a.fecha)}<small>${esc(a.nota||'')}</small></div><div class="m">${soles(a.monto)}</div><button class="x" data-dap="${esc(m.id)}|${esc(a.id)}" title="Quitar aporte">×</button></div>`).join('')}</details>`:''}</div>`}).join('')||'<p class="mute">Aún no tienes metas.</p>';
+}
+function renderAjustes(){
+  const act=document.activeElement;
+  $('cuentaInfo').innerHTML=`Usuario: ${ico(U.emoji)} ${esc(U.nombre)} · ${USERS.length} de ${MAX_USERS} usuarios en este dispositivo`;
+  $('cEmo').innerHTML=EMOJIS.map(e=>`<button type="button" class="chip${e===U.emoji?' on':''}" data-e="${esc(e)}">${ico(e)}</button>`).join('');
+  $('cRec').checked=RECORDAR;$('cLock').value=String(S.config.autolock);$('cLock').disabled=RECORDAR;
+  if(act!==$('cLim'))$('cLim').value=S.config.limiteSemanal;
+  if(act!==$('cUmb'))$('cUmb').value=(S.config.umbrales||[]).join(',');
+  if(act!==$('cIng'))$('cIng').value=S.config.ingresoMensual||'';
+  $('cFijos').checked=!!S.config.fijosEnLimite;
+  if(!$('cCats').contains(act))
+    $('cCats').innerHTML=S.cats.map((c,i)=>`<div class="item"><div class="c">${esc(c)}</div><input style="width:110px" type="number" min="0" step="1" placeholder="Lím. sem." data-lc="${i}" value="${S.config.limitesCat[c]||''}"><button class="x" data-dcat="${i}" title="Quitar">×</button></div>`).join('');
+  $('cPagos').innerHTML=S.pagos.map((c,i)=>`<div class="item"><div class="c">${esc(c)}</div><button class="x" data-dpago="${i}" title="Quitar">×</button></div>`).join('');
+  $('rCat').innerHTML=opciones(S.cats,$('rCat').value);$('rPago').innerHTML=opciones(S.pagos,$('rPago').value,'—');
+  $('cRecs').innerHTML=S.recurrentes.map(r=>`<div class="item"><div class="c">${esc(r.nombre)}<small>${esc(r.cat)} · día ${r.dia}${r.pago?' · '+esc(r.pago):''}${r.activo===false?' · pausado':''}</small></div><div class="m">${soles(r.monto)}</div><button class="btn sm ghost" data-trec="${esc(r.id)}">${r.activo===false?'Reanudar':'Pausar'}</button><button class="x" data-drec="${esc(r.id)}" title="Eliminar">×</button></div>`).join('')||'<p class="mute">No tienes gastos fijos.</p>';
+  $('linkEj').textContent=location.origin+location.pathname+'?u='+encodeURIComponent(U.nombre)+'&monto=5.50&concepto=Taxi&pago=Yape';
+  if(!$('ajustes').contains(act)||!act.id.startsWith('gh')){
+    const g=S.gh||{};$('ghOwner').value=g.owner||'';$('ghRepo').value=g.repo||'';$('ghPath').value=g.path||('gastos-'+slug(U.nombre)+'.json');$('ghBranch').value=g.branch||'main';$('ghTok').value=g.token||'';
+  }
+}
+const slug=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'usuario';
+
+/* ================= acciones de gastos ================= */
+function agregar(monto,cat,nota,fecha,pago){
+  monto=num(monto);if(!(monto>0))return null;
+  cat=String(cat||'').trim().slice(0,30)||'Otros';
+  const ex=S.cats.find(c=>c.toLowerCase()===cat.toLowerCase());if(ex)cat=ex;else S.cats.push(cat);
+  pago=String(pago||'').trim().slice(0,20);
+  if(pago){const ep=S.pagos.find(c=>c.toLowerCase()===pago.toLowerCase());if(ep)pago=ep;else S.pagos.push(pago);S.config.ultimoPago=pago}
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(fecha||'')||isNaN(parse(fecha)))fecha=fmt(new Date());
+  const g={id:uid(),fecha,monto,cat,pago,nota:String(nota||'').slice(0,80),ts:Date.now()};
+  S.gastos.push(g);revisarAlertas();save();return g;
+}
+function eliminar(id){
+  const g=S.gastos.find(x=>x.id===id);if(!g)return;
+  S.gastos=S.gastos.filter(x=>x.id!==id);S.borrados.push(id);save();
+  toast(`Eliminado: ${g.cat} ${soles(g.monto)}`,{txt:'Deshacer',fn:()=>{S.borrados=S.borrados.filter(x=>x!==id);S.gastos.push(g);save()}});
+}
+$('fGasto').onsubmit=e=>{e.preventDefault();const g=agregar($('gMonto').value,$('gCat').value,$('gNota').value,$('gFecha').value,$('gPago').value);
+  if(g){toast(`Registrado: ${soles(g.monto)} en ${g.cat}`,{txt:'Deshacer',fn:()=>eliminarSilencioso(g.id)});$('gMonto').value='';$('gNota').value='';$('gFecha').value=fmt(new Date());$('gMonto').focus()}};
+function eliminarSilencioso(id){S.gastos=S.gastos.filter(x=>x.id!==id);S.borrados.push(id);save();toast('Deshecho.')}
+$('gChips').onclick=e=>{const c=e.target.dataset.c;if(c!=null){$('gCat').value=c;renderInicio()}};
+$('gCat').onchange=renderInicio;
+$('frec').onclick=e=>{const i=e.target.dataset.fq;if(i==null)return;const f=frecuentes()[i];if(!f)return;const g=agregar(f.monto,f.cat,'',fmt(new Date()),f.pago);if(g)toast(`Registrado: ${soles(g.monto)} en ${g.cat}`,{txt:'Deshacer',fn:()=>eliminarSilencioso(g.id)})};
+['fMes','fCat','fPago'].forEach(id=>$(id).onchange=renderGastos);$('fTxt').oninput=renderGastos;
+$('cierre').onclick=e=>{const a=e.target.dataset.cierre;if(!a)return;const p=semana(-1);
+  if(a==='ok'){const m=S.metas.find(x=>x.id===$('cierreMeta').value),v=num($('cierreMonto').value);if(m&&v>0){m.aportes.push({id:uid(),fecha:fmt(new Date()),monto:v,nota:'Sobrante semana del '+p.ini.getDate()+' '+MESES[p.ini.getMonth()]});toast(`Separaste ${soles(v)} para ${m.nombre} 💪`)}}
+  S.cierres[p.key]=1;save()};
+
+/* editar */
+let editId=null;
+$('lista').onclick=e=>{const it=e.target.closest('[data-edit]');if(!it)return;const g=S.gastos.find(x=>x.id===it.dataset.edit);if(!g)return;editId=g.id;
+  $('eMonto').value=g.monto;$('eFecha').value=g.fecha;$('eCat').innerHTML=opciones([...new Set([...S.cats,g.cat])],g.cat);$('ePago').innerHTML=opciones([...new Set([...S.pagos,...(g.pago?[g.pago]:[])])],g.pago,'—');$('eNota').value=g.nota||'';
+  $('eInfo').textContent=g.recId?'Gasto fijo automático: los cambios aplican solo a este mes.':'';
+  $('dlg').showModal()};
+$('fEdit').onsubmit=e=>{e.preventDefault();const g=S.gastos.find(x=>x.id===editId);if(g){const m=num($('eMonto').value);if(!(m>0))return;Object.assign(g,{monto:m,fecha:$('eFecha').value,cat:$('eCat').value,pago:$('ePago').value,nota:$('eNota').value.slice(0,80)});revisarAlertas();save();toast('Gasto actualizado.')}$('dlg').close()};
+$('eCancel').onclick=()=>$('dlg').close();
+$('eDel').onclick=()=>{$('dlg').close();eliminar(editId)};
+
+/* navegación */
+$('tabs').onclick=e=>{const t=e.target.dataset.t;if(!t)return;document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id===t));scrollTo(0,0)};
+
+/* metas */
+$('fMeta').onsubmit=e=>{e.preventDefault();S.metas.push({id:uid(),nombre:$('mNom').value.trim(),objetivo:num($('mObj').value),fin:$('mFin').value,aportes:[]});e.target.reset();save()};
+$('listaMetas').onclick=e=>{
+  const d=e.target.dataset;
+  if(d.ap){const m=S.metas.find(x=>x.id===d.ap);const v=num(prompt(`¿Cuánto aportas a "${m.nombre}"? (S/)`));if(v>0){m.aportes.push({id:uid(),fecha:fmt(new Date()),monto:v,nota:''});save()}}
+  if(d.dmeta&&confirm('¿Eliminar esta meta y sus aportes?')){S.metas=S.metas.filter(m=>m.id!==d.dmeta);save()}
+  if(d.dap){const[mid,aid]=d.dap.split('|'),m=S.metas.find(x=>x.id===mid);if(m&&confirm('¿Quitar este aporte?')){m.aportes=m.aportes.filter(a=>a.id!==aid);save()}}
+};
+
+/* ajustes */
+$('cLim').onchange=e=>{S.config.limiteSemanal=Math.max(0,num(e.target.value));save()};
+$('cUmb').onchange=e=>{const u=e.target.value.split(/[,;\s]+/).map(Number).filter(x=>x>0&&x<100);S.config.umbrales=u.length?u:[50,70,80];save()};
+$('cIng').onchange=e=>{S.config.ingresoMensual=Math.max(0,num(e.target.value));save()};
+$('cFijos').onchange=e=>{S.config.fijosEnLimite=e.target.checked;save()};
+$('cLock').onchange=e=>{S.config.autolock=+e.target.value;save();actividad()};
+$('cRec').onchange=async e=>{RECORDAR=e.target.checked;if(RECORDAR)ls.set(K_SESS+U.id,await exportKey(KEY));else ls.del(K_SESS+U.id);renderAjustes();actividad()};
+$('cCats').onchange=e=>{const i=e.target.dataset.lc;if(i!=null){const c=S.cats[i],v=num(e.target.value);if(v>0)S.config.limitesCat[c]=v;else delete S.config.limitesCat[c];e.target.blur();save()}};
+$('cCats').onclick=e=>{const i=e.target.dataset.dcat;if(i!=null&&confirm(`¿Quitar "${S.cats[i]}" de la lista? Los gastos ya registrados se conservan.`)){delete S.config.limitesCat[S.cats[i]];S.cats.splice(i,1);if(!S.cats.length)S.cats.push('Otros');save()}};
+$('fCat2').onsubmit=e=>{e.preventDefault();const c=$('nCat').value.trim();if(c&&!S.cats.some(x=>x.toLowerCase()===c.toLowerCase())){S.cats.push(c);$('nCat').value='';save()}};
+$('cPagos').onclick=e=>{const i=e.target.dataset.dpago;if(i!=null&&confirm(`¿Quitar "${S.pagos[i]}"?`)){S.pagos.splice(i,1);save()}};
+$('fPago2').onsubmit=e=>{e.preventDefault();const c=$('nPago').value.trim();if(c&&!S.pagos.some(x=>x.toLowerCase()===c.toLowerCase())){S.pagos.push(c);$('nPago').value='';save()}};
+$('fRec').onsubmit=e=>{e.preventDefault();const dia=Math.min(31,Math.max(1,parseInt($('rDia').value)||1));
+  S.recurrentes.push({id:uid(),nombre:$('rNom').value.trim(),monto:num($('rMonto').value),cat:$('rCat').value,pago:$('rPago').value,dia,desde:fmt(new Date()),activo:true});
+  e.target.reset();$('rDia').value=1;const n=generarRecurrentes();save();toast(n?`Gasto fijo creado y registrado ${n} vez/veces.`:`Gasto fijo creado: se registrará el día ${dia}.`)};
+$('cRecs').onclick=e=>{const d=e.target.dataset;
+  if(d.trec){const r=S.recurrentes.find(x=>x.id===d.trec);r.activo=r.activo===false;if(r.activo)r.desde=fmt(new Date());generarRecurrentes();save()}
+  if(d.drec&&confirm('¿Eliminar este gasto fijo? Los meses ya registrados se conservan.')){S.recurrentes=S.recurrentes.filter(x=>x.id!==d.drec);save()}};
+$('btnNotif').onclick=async()=>{if(!('Notification' in window))return toast('Este navegador no soporta notificaciones.');const r=await Notification.requestPermission();toast(r==='granted'?'Notificaciones activadas ✅':'No se activaron las notificaciones.')};
+
+function descargar(nombre,txt,tipo){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:tipo}));a.download=nombre;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$('expJson').onclick=()=>descargar(`gastos-${slug(U.nombre)}-${fmt(new Date())}.json`,JSON.stringify(paraSubir(),null,2),'application/json');
+$('expCsv').onclick=()=>descargar(`gastos-${slug(U.nombre)}-${fmt(new Date())}.csv`,'﻿fecha,concepto,monto,pago,nota,fijo\n'+S.gastos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(g=>[g.fecha,g.cat,g.monto.toFixed(2),g.pago,g.nota,g.recId?'si':''].map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n'),'text/csv');
+$('impJson').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const r=JSON.parse(await f.text());if(!Array.isArray(r.gastos))throw 0;S=merge(S,normalizar(r));generarRecurrentes();save();toast('Datos importados ✅')}catch(err){toast('Archivo no válido.')}e.target.value=''};
+
+/* ================= aviso flotante ================= */
+let tt;
+function toast(m,accion,ms){const t=$('toast'),b=$('toastBtn');$('toastMsg').textContent=m;b.hidden=!accion;
+  if(accion){b.textContent=accion.txt;b.onclick=()=>{t.classList.remove('on');accion.fn()}}
+  t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),ms||(accion?6000:4000))}
+
+/* ================= sincronización GitHub ================= */
+const st=m=>$('syncSt').textContent=m;
+function paraSubir(){const o=clone(S);delete o.gh;delete o.avisos;return o}
+function merge(a,b){ // a = local (manda en gh/avisos), b = remoto
+  const del=new Set([...(a.borrados||[]),...(b.borrados||[])]),map=new Map();
+  [...(b.gastos||[]),...(a.gastos||[])].forEach(g=>{if(g&&g.id&&!del.has(g.id))map.set(g.id,g)});
+  const nw=(a.updatedAt||0)>=(b.updatedAt||0)?a:b,old=nw===a?b:a,gastos=[...map.values()];
+  const cats=[...(nw.cats||[])];gastos.forEach(g=>{if(!cats.includes(g.cat))cats.push(g.cat)});
+  const metas=(nw.metas||[]).map(m=>{const o=(old.metas||[]).find(x=>x.id===m.id);if(!o)return m;const am=new Map();[...o.aportes,...m.aportes].forEach(x=>am.set(x.id,x));return{...m,aportes:[...am.values()]}});
+  return normalizar(Object.assign({},nw,{gastos,borrados:[...del],cats,metas,cierres:Object.assign({},b.cierres,a.cierres),avisos:a.avisos||{},gh:a.gh,updatedAt:Math.max(a.updatedAt||0,b.updatedAt||0)}));
+}
+function ghUrl(g){return`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/${(g.path||'data.json').split('/').map(encodeURIComponent).join('/')}`}
+let syncing=false,again=false,pt;
+function schedulePush(){if(!S||!S.gh)return;clearTimeout(pt);pt=setTimeout(sync,1200)}
+async function sync(intento=0){
+  if(!S||!S.gh)return;if(syncing){again=true;return}syncing=true;st('⟳ sincronizando…');
+  const g=S.gh,yo=U.id,h={Authorization:'Bearer '+g.token,Accept:'application/vnd.github+json'};
+  try{
+    const r=await fetch(ghUrl(g)+'?ref='+encodeURIComponent(g.branch||'main'),{headers:h,cache:'no-store'});
+    if(r.status===401||r.status===403)throw new Error('token');
+    let sha;
+    if(r.status===200){const j=await r.json();sha=j.sha;const remoto=normalizar(JSON.parse(td.decode(unb64(j.content))));if(!U||U.id!==yo)throw new Error('cambio de usuario');S=merge(S,remoto);generarRecurrentes();persist();render()}
+    else if(r.status!==404)throw new Error('GitHub '+r.status);
+    const body={message:`gastos ${U.nombre}: ${new Date().toISOString()}`,content:b64(te.encode(JSON.stringify(paraSubir()))),branch:g.branch||'main'};if(sha)body.sha=sha;
+    const p=await fetch(ghUrl(g),{method:'PUT',headers:h,body:JSON.stringify(body)});
+    if((p.status===409||p.status===422)&&intento<2){syncing=false;return sync(intento+1)}
+    if(!p.ok)throw new Error('GitHub '+p.status);
+    st('✓ '+new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'}));
+  }catch(e){st(e.message==='token'?'⚠ token inválido':'⚠ sin sincronizar');console.error(e)}
+  syncing=false;if(again){again=false;sync()}
+}
+$('ghSave').onclick=()=>{
+  const g={owner:$('ghOwner').value.trim(),repo:$('ghRepo').value.trim(),path:$('ghPath').value.trim()||('gastos-'+slug(U.nombre)+'.json'),branch:$('ghBranch').value.trim()||'main',token:$('ghTok').value.trim()};
+  if(!g.owner||!g.repo||!g.token)return toast('Completa usuario, repo y token.');
+  S.gh=g;persist();sync();toast('Sincronización configurada.');
+};
+$('ghOff').onclick=()=>{S.gh=null;persist();st('');renderAjustes();toast('Sincronización desconectada.')};
+
+/* ================= usuarios y sesión ================= */
+function mostrar(pantalla){$('login').hidden=pantalla!=='login';$('app').hidden=pantalla!=='app'}
+function pendiente(){try{return JSON.parse(ss.get(K_PEND))}catch(e){return null}}
+const porNombre=n=>{n=String(n||'').trim().toLowerCase();return n?USERS.find(u=>u.nombre.toLowerCase()===n):null};
+
+function showLogin(){
+  mostrar('login');$('lgLista').hidden=false;$('pinBox').hidden=true;$('newBox').hidden=true;
+  $('perfiles').innerHTML=USERS.map(u=>`<button class="perfil" data-u="${esc(u.id)}"><span class="e">${ico(u.emoji)}</span>${esc(u.nombre)}</button>`).join('')+
+    (USERS.length<MAX_USERS?`<button class="perfil add" data-new="1"><span class="e">＋</span>Agregar usuario</button>`:'');
+  const p=pendiente();
+  $('pendLogin').innerHTML=p?`<div class="pend">Gasto por registrar: ${soles(num(p.monto))}${p.concepto?' en '+esc(p.concepto):''}${p.u?' para '+esc(p.u):''}. Entra para guardarlo.</div>`:'';
+}
+function pedirPin(u){
+  $('lgLista').hidden=true;$('newBox').hidden=true;$('pinBox').hidden=false;$('pinBox').dataset.u=u.id;
+  $('pinWho').innerHTML=`${ico(u.emoji)} Hola, ${esc(u.nombre)}`;$('pinIn').value='';$('pinErr').textContent='';$('pinRec').checked=false;
+  setTimeout(()=>$('pinIn').focus(),50);
+}
+let emoSel=EMOJIS[0];
+function nuevoUsuario(){
+  if(USERS.length>=MAX_USERS)return;
+  $('lgLista').hidden=true;$('pinBox').hidden=true;$('newBox').hidden=false;$('newErr').textContent='';$('fNew').reset();
+  const usados=USERS.map(u=>u.emoji);emoSel=EMOJIS.find(e=>!usados.includes(e))||EMOJIS[0];pintarEmo();
+  $('nMigWrap').hidden=!(ls.get(K_V1)&&!USERS.length);$('newBack').hidden=!USERS.length;
+  setTimeout(()=>$('nNom').focus(),50);
+}
+function pintarEmo(){$('nEmo').innerHTML=EMOJIS.map(e=>`<button type="button" class="chip${e===emoSel?' on':''}" data-e="${esc(e)}">${ico(e)}</button>`).join('')}
+$('nEmo').onclick=e=>{const b=e.target.closest('[data-e]');if(b){emoSel=b.dataset.e;pintarEmo()}};
+$('cEmo').onclick=e=>{const b=e.target.closest('[data-e]');if(!b||!U)return;U.emoji=b.dataset.e;ls.set(K_USERS,USERS);renderHeader();renderAjustes()};
+$('perfiles').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.new)return nuevoUsuario();const u=USERS.find(x=>x.id===b.dataset.u);if(u)pedirPin(u)};
+$('pinBack').onclick=showLogin;$('newBack').onclick=showLogin;
+
+$('fPin').onsubmit=async e=>{
+  e.preventDefault();const u=USERS.find(x=>x.id===$('pinBox').dataset.u);if(!u)return showLogin();
+  const btn=$('pinOk');btn.disabled=true;btn.textContent='Verificando…';$('pinErr').textContent='';
+  try{await login(u,$('pinIn').value,$('pinRec').checked)}catch(err){$('pinErr').textContent=err.message;$('pinIn').value='';$('pinIn').focus()}
+  btn.disabled=false;btn.textContent='Entrar';
+};
+async function login(user,pin,rec){
+  const f=ls.get(K_FAIL+user.id)||{n:0,until:0};
+  if(Date.now()<f.until)throw new Error(`Demasiados intentos. Espera ${Math.ceil((f.until-Date.now())/1000)} segundos.`);
+  const key=await deriveKey(pin,user.salt,user.iter||ITER);let data;
+  try{data=await dec(key,ls.get(K_DATA+user.id))}
+  catch(e){f.n++;if(f.n>=5)f.until=Date.now()+30000*Math.pow(2,f.n-5);ls.set(K_FAIL+user.id,f);throw new Error(f.n>=5?'PIN incorrecto. Espera un momento antes de intentar de nuevo.':`PIN incorrecto (${f.n} de 5 intentos).`)}
+  ls.del(K_FAIL+user.id);await entrar(user,key,data,rec);
+}
+async function entrar(user,key,data,rec){
+  U=user;KEY=key;S=normalizar(data);RECORDAR=!!rec;
+  const raw=await exportKey(key);ss.set(K_SESS+user.id,raw);if(rec)ls.set(K_SESS+user.id,raw);else ls.del(K_SESS+user.id);
+  ls.set(K_LAST,user.id);
+  ['gFecha','fMes','fTxt','gMonto','gNota'].forEach(id=>$(id).value='');st('');
+  mostrar('app');
+  const n=generarRecurrentes();if(n)persist();
+  render();revisarAlertas();aplicarPendiente();actividad();
+  if(S.gh)sync();
+}
+async function intentarSesion(id){
+  const u=USERS.find(x=>x.id===id);if(!u)return false;
+  const recordado=ls.get(K_SESS+id),raw=ss.get(K_SESS+id)||recordado;if(!raw)return false;
+  try{const k=await importKey(raw);await entrar(u,k,await dec(k,ls.get(K_DATA+id)),!!recordado);return true}
+  catch(e){ss.del(K_SESS+id);ls.del(K_SESS+id);return false}
+}
+async function salir(){
+  if(!U)return;await saveP;clearTimeout(pt);
+  ss.del(K_SESS+U.id);ls.del(K_SESS+U.id);U=null;KEY=null;S=null;RECORDAR=false;
+  if($('dlg').open)$('dlg').close();showLogin();
+}
+$('btnSalir').onclick=salir;
+
+$('fNew').onsubmit=async e=>{
+  e.preventDefault();const nom=$('nNom').value.trim(),p1=$('nPin').value,p2=$('nPin2').value;
+  if(!nom)return;if(porNombre(nom))return $('newErr').textContent='Ya existe un usuario con ese nombre.';
+  if(!/^\d{4,8}$/.test(p1))return $('newErr').textContent='El PIN debe tener de 4 a 8 números.';
+  if(p1!==p2)return $('newErr').textContent='Los PIN no coinciden.';
+  if(USERS.length>=MAX_USERS)return $('newErr').textContent=`Máximo ${MAX_USERS} usuarios por dispositivo.`;
+  const salt=b64(crypto.getRandomValues(new Uint8Array(16))),user={id:uid(),nombre:nom,emoji:emoSel,salt,iter:ITER,creado:Date.now()};
+  const key=await deriveKey(p1,salt,ITER);
+  let data=clone(DEF);const migrar=!$('nMigWrap').hidden&&$('nMig').checked;
+  if(migrar){const v1=ls.get(K_V1);if(v1)data=normalizar(v1);const gh1=ls.get(K_GH1);if(gh1&&gh1.token)data.gh=gh1}
+  data.updatedAt=Date.now();
+  if(!ls.set(K_DATA+user.id,await enc(key,data)))return $('newErr').textContent='No se pudo guardar en este navegador.';
+  USERS.push(user);ls.set(K_USERS,USERS);
+  if(migrar){ls.del(K_V1);ls.del(K_GH1)}
+  await entrar(user,key,data,false);
+  toast(`¡Bienvenido/a, ${nom}! ${migrar?'Tus datos anteriores ya están aquí.':''}`);
+};
+$('btnPin').onclick=async()=>{
+  const actual=prompt('Escribe tu PIN actual');if(actual==null)return;
+  try{await dec(await deriveKey(actual,U.salt,U.iter||ITER),ls.get(K_DATA+U.id))}catch(e){return toast('PIN actual incorrecto.')}
+  const n1=prompt('Nuevo PIN (4 a 8 números)');if(n1==null)return;if(!/^\d{4,8}$/.test(n1))return toast('El PIN debe tener de 4 a 8 números.');
+  if(prompt('Repite el nuevo PIN')!==n1)return toast('Los PIN no coinciden.');
+  await saveP;const salt=b64(crypto.getRandomValues(new Uint8Array(16))),key=await deriveKey(n1,salt,ITER);
+  U.salt=salt;U.iter=ITER;KEY=key;ls.set(K_USERS,USERS);await persist();
+  const raw=await exportKey(key);ss.set(K_SESS+U.id,raw);if(RECORDAR)ls.set(K_SESS+U.id,raw);
+  toast('PIN actualizado ✅');
+};
+$('btnDelUser').onclick=async()=>{
+  if(!confirm(`¿Eliminar el usuario ${U.nombre} y TODOS sus datos de este dispositivo? Esto no se puede deshacer.`))return;
+  if(prompt(`Para confirmar escribe: ${U.nombre}`)!==U.nombre)return toast('No se eliminó.');
+  const id=U.id;await saveP;['DATA','SESS','FAIL'].forEach(k=>ls.del({DATA:K_DATA,SESS:K_SESS,FAIL:K_FAIL}[k]+id));ss.del(K_SESS+id);
+  USERS=USERS.filter(u=>u.id!==id);ls.set(K_USERS,USERS);if(ls.get(K_LAST)===id)ls.del(K_LAST);
+  U=null;KEY=null;S=null;showLogin();toast('Usuario eliminado.');
+};
+
+/* bloqueo por inactividad (si la sesión no está recordada) */
+let ultimo=Date.now();
+function actividad(){ultimo=Date.now()}
+['pointerdown','keydown','scroll','touchstart'].forEach(ev=>addEventListener(ev,actividad,{passive:true}));
+setInterval(()=>{if(U&&!RECORDAR&&S.config.autolock>0&&Date.now()-ultimo>S.config.autolock*60000){salir();toast('Sesión bloqueada por inactividad.')}},15000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&U&&!RECORDAR&&S.config.autolock>0&&Date.now()-ultimo>S.config.autolock*60000)salir()});
+
+/* ================= registro por enlace ================= */
+(function(){
+  const q=new URLSearchParams(location.search);
+  if(q.has('monto')){ss.set(K_PEND,JSON.stringify({monto:q.get('monto'),concepto:q.get('concepto')||q.get('cat'),nota:q.get('nota'),fecha:q.get('fecha'),pago:q.get('pago'),u:q.get('u')}));history.replaceState(null,'',location.pathname)}
+})();
+function aplicarPendiente(){
+  const p=pendiente();if(!p||!U)return;const tu=porNombre(p.u);
+  if(p.u&&tu&&tu.id!==U.id)return;
+  ss.del(K_PEND);const g=agregar(p.monto,p.concepto,p.nota,p.fecha,p.pago);
+  setTimeout(()=>{if(g)toast(`Registrado por enlace: ${soles(g.monto)} en ${g.cat}`,{txt:'Deshacer',fn:()=>eliminarSilencioso(g.id)});else toast('El enlace no tenía un monto válido.')},400);
+}
+
+/* ================= inicio ================= */
+async function init(){
+  if(!window.crypto||!crypto.subtle){document.body.innerHTML='<p style="padding:24px">Abre esta página desde su dirección https (GitHub Pages). El navegador no permite el cifrado en esta dirección.</p>';return}
+  const p=pendiente(),tu=p&&porNombre(p.u),objetivo=tu?tu.id:ls.get(K_LAST);
+  if(objetivo&&await intentarSesion(objetivo))return;
+  showLogin();
+  if(!USERS.length)nuevoUsuario();else if(tu)pedirPin(tu);else if(USERS.length===1)pedirPin(USERS[0]);
+}
+init();
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
